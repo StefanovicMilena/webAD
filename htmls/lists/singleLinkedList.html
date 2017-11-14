@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="UTF-8">
+  <title>webAD</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  
+  <link rel="stylesheet" href="../../styles/style.css" type="text/css" media="all">
+  <link rel="stylesheet" href="../../styles/img.css" type="text/css" media="all">
+  
+  <script src="../../libs/externalLibs/jquery.min.js"></script>
+  <script src="../../libs/externalLibs/kinetic-v5.1.0.min.js"></script>
+  
+  <script type="text/javascript" src="../../libs/menu.js"></script>
+
+
+</head>
+<script>
+    function generate(){
+        
+       window.prompt("Length:");
+    }
+    
+    
+    
+    
+</script>
+<body id="body" class="page" onload="init();example();return false;">
+<header id="header">
+	<ul>
+		<li><a href="javascript:_class('info', 'hide')" class="info">Info</a></li>
+		<li><a href="javascript:_class('config', 'hide')" class="conf">Config</a></li>
+		<li><a href="javascript:_class('about', 'hide')" class="idea">About</a></li>
+	</ul>
+</header>
+<aside>
+	<a href="../index.html" class="logo"></a>
+	<ul class="dis">
+		<li><a href="javascript:_class('vec', 'hide')" class="v"><span>Vectors</span></a></li>
+		<li><a href="javascript:_class('dic', 'hide')" class="d"><span>Dictionaries</span></a></li>
+		<li><a href="javascript:_class('lis', 'hide')" class="l"><span>Lists</span></a></li>
+		<li><a href="javascript:_class('gra', 'hide')" class="g"><span>Graphs</span></a></li>
+		<li><a href="javascript:_class('tre', 'hide')" class="t"><span>Trees</span></a></li>
+	</ul>
+</aside>
+<article>
+	<div id="menu" class="open">
+		<a href="javascript:_class('menu', 'open')">Single Linked List</a>
+		<input type="button" value="Generate Random" id="generateRandom" onclick="generate();return false;">
+		<input type="button" value="List()"          id="createList"     onclick="create();return false;">
+                <input type="button" value="~List()"         id="removeList"     onclick="removeList();return false;">
+                <input type="button" value="First Element"   id="addFirst"       onclick="firstElement();return false;">
+                <input type="button" value="Add Element"     id="addEl"          onclick="addElement();return false;">
+	        <input type="button" value="Access Element"  id="accessEl"       onclick="traverse();return false;">
+                <input type="button" value="Remove First"    id="removeFirst"    onclick="removeFirst();return false;">
+                <input type="button" value="Remove Element"  id="removeEl"       onclick="removeElement();return false;">
+                <input type="button" value="Member"          id="member"         onclick="isMember();return false;">
+                <input type="button" value="Length"          id="length"         onclick="getLength();return false;">
+               
+	</div>
+	<div id="containerMain"></div>
+</article>
+
+
+<footer>
+	<div class="rul">
+		<a href="#" class="l2" id="first" onclick="first();return false;"></a>
+		<a href="#" class="l1" id="prev" onclick="pre();return false;"></a>
+		<a href="#" id="p"></a>
+		<a href="#" class="r1" id="next" onclick="next();return false;"></a>
+		<a href="#" class="r2" id="last" onclick="last();return false;"></a>
+		<a href="#" class="z2" onclick="zoomOut();return false;"></a>
+		<a href="#" class="z1" onclick="zoomIn();return false;"></a>
+	</div>
+	webAD is a web-based system designed for simple and intuitive learning of Algorithms and Datastrures. For further questions please contact: <a href="mailto:begy.volodimir@gmail.com">begy.volodimir@gmail.com</a>
+</footer>
+<div id="info" class="popup hide"><div class="closer" onclick="javascript:_class('info', 'hide')"></div><a href="javascript:_class('info', 'hide')" class="close">X</a>
+	<div class="pole"><h2>Info</h2>
+	Implemented by Milena Stefanovic
+	<br>
+	For questions contact milena_stefanovic86@yahoomail.com
+	<br><br>
+	The elements are distributed in the hash table accoring to a modulo (%) operation between an element and the table size.
+	<br><br>
+	The collision resolution allocates colliding elements into an array of buckets. In case of a dynamic hash table, a treshold fill factor of 70% shall not be exceeded. If however this is the case, the table doubles in size and reallocates the elements. 
+	<br><br>
+	<a href="https://en.wikipedia.org/wiki/Hash_table#Separate_chaining" target="_blank">https://en.wikipedia.org/wiki/Hash_table#Separate_chaining</a>
+	</div>
+</div>
+<div id="config" class="popup hide"><div class="closer" onclick="javascript:_class('config', 'hide')"></div><a href="javascript:_class('config', 'hide')" class="close">X</a>
+	<div class="pole"><h2>Config</h2>
+		Dynamic: <input type="checkbox" name="dynamic" id="dynamic" onchange="dynamic();">
+		<br>
+		<br>
+		Color: <input type="color" name="col" id="col" onchange="changeCol();return false;">
+	</div>
+</div>
+<div id="about" class="popup hide"><div class="closer" onclick="javascript:_class('about', 'hide')"></div><a href="javascript:_class('about', 'hide')" class="close">X</a>
+	<div class="pole2"><h2>About</h2>
+		<a href="http://gruppe.wst.univie.ac.at/workgroups/webAD" target="_blank">
+			<img src="../../images/uni.png" width="250px" alt="bsimage">
+		</a>
+		<a href="https://github.com/VolodimirBegy/webAD" target="_blank">
+			<img src="../../images/Octocat.png" width="100px" alt="bsimage">
+		</a>
+	</div>
+</div>
+<div id="vec" class="popup hide"><div class="closer" onclick="javascript:_class('vec', 'hide')"></div><a href="javascript:_class('vec', 'hide')" class="close">X</a>
+	<div class="pole"><h2>Vectors</h2>
+     	<ul>
+           	<li><a href="../vectors/BubbleSort.html">Bubble Sort</a></li>
+           	<li><a href="../vectors/SelectionSort.html">Selection Sort</a></li>
+           	<li><a href="../vectors/MergeSort.html">Merge Sort</a></li>
+            <li><a href="../vectors/RadixSort.html">LSD Radix Sort</a></li>
+           	<li><a href="../vectors/QuickSort.html">Quick Sort</a></li>
+            <li><a href="../vectors/BucketSort.html">Bucket Sort</a></li>
+            <li><a href="../vectors/CountingSort.html">Counting Sort</a></li>
+          </ul>
+	</div>
+</div>
+<div id="dic" class="popup hide"><div class="closer" onclick="javascript:_class('dic', 'hide')"></div><a href="javascript:_class('dic', 'hide')" class="close">X</a>
+	<div class="pole"><h2>Dictionaries</h2>
+       	<ul>
+           	<li><a href="../dictionaries/DoubleHashing.html">Double Hashing</a></li>
+         	<li><a href="../dictionaries/LinearProbing.html">Linear Probing</a></li>
+         	<li><a href="../dictionaries/LinearHashing.html">Linear Hashing</a></li>
+                <li><a href="../dictionaries/SeparateChaining.html">Separate Chaining</a></li>
+                <li><a href="../dictionaries/ExtendibleHashing.html">Extendible Hashing</a></li>
+          </ul>
+	</div>
+</div>
+<div id="lis" class="popup hide"><div class="closer" onclick="javascript:_class('lis', 'hide')"></div><a href="javascript:_class('lis', 'hide')" class="close">X</a>
+	<div class="pole"><h2>Lists</h2>
+     	<ul>
+             <li><a href="../lists/singleLinkedList.html">Single Linked List</a></li>
+          </ul>
+	</div>
+</div>
+<div id="gra" class="popup hide"><div class="closer" onclick="javascript:_class('gra', 'hide')"></div><a href="javascript:_class('gra', 'hide')" class="close">X</a>
+	<div class="pole"><h2>Graphs</h2>
+     	<ul>
+			<li><a href="../graphs/bfs.html">Breadth First Search</a></li>
+			<li><a href="../graphs/dfs.html">Depth First Search</a></li>
+			<li><a href="../graphs/kruskal.html">Kruskal</a></li>
+			<li><a href="../graphs/dijkstra.html">Dijkstra</a></li>
+        </ul>
+	</div>
+</div>
+<div id="tre" class="popup hide"><div class="closer" onclick="javascript:_class('tre', 'hide')"></div><a href="javascript:_class('tre', 'hide')" class="close">X</a>
+	<div class="pole"><h2>Trees</h2>
+	     <ul>
+           	<li><a href="../trees/bst.html">Binary Search Tree</a></li>
+           	<li><a href="../trees/bplus.html">B+ Tree</a></li>
+           	<li><a href="../trees/heap.html">Binary Heap</a></li>
+           	<li><a href="../trees/heapSort.html">Heap Sort</a></li>
+			<li><a href="../trees/trie.html">Trie</a></li>
+			<li><a href="../trees/traversal.html">Traversal</a></li>
+          </ul>
+	</div>
+</div>
+</body>
+</html>
