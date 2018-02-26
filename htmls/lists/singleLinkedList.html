@@ -12,21 +12,18 @@
   <script src="../../libs/externalLibs/jquery.min.js"></script>
   <script src="../../libs/externalLibs/kinetic-v5.1.0.min.js"></script>
   
+  
+  <script src="../../libs/views/lists/singleLinkedList.js"></script>
+  <script src="../../libs/models/lists/singleLinkedList.js"></script>
+  
   <script type="text/javascript" src="../../libs/menu.js"></script>
 
+ 
 
 </head>
-<script>
-    function generate(){
-        
-       window.prompt("Length:");
-    }
+
+<body id="body" class="page" onload = "init();example(); return false;">
     
-    
-    
-    
-</script>
-<body id="body" class="page" onload="init();example();return false;">
 <header id="header">
 	<ul>
 		<li><a href="javascript:_class('info', 'hide')" class="info">Info</a></li>
@@ -47,12 +44,12 @@
 <article>
 	<div id="menu" class="open">
 		<a href="javascript:_class('menu', 'open')">Single Linked List</a>
-		<input type="button" value="Generate Random" id="generateRandom" onclick="generate();return false;">
+		<input type="button" value="Generate Random" id="generateRandom" onclick="example();return false;">
 		<input type="button" value="List()"          id="createList"     onclick="create();return false;">
                 <input type="button" value="~List()"         id="removeList"     onclick="removeList();return false;">
                 <input type="button" value="First Element"   id="addFirst"       onclick="firstElement();return false;">
                 <input type="button" value="Add Element"     id="addEl"          onclick="addElement();return false;">
-	        <input type="button" value="Access Element"  id="accessEl"       onclick="traverse();return false;">
+	        <input type="button" value="Access Element"  id="accessEl"       onclick="accessElement();return false;">
                 <input type="button" value="Remove First"    id="removeFirst"    onclick="removeFirst();return false;">
                 <input type="button" value="Remove Element"  id="removeEl"       onclick="removeElement();return false;">
                 <input type="button" value="Member"          id="member"         onclick="isMember();return false;">
@@ -159,5 +156,57 @@
           </ul>
 	</div>
 </div>
+    <script>
+    var list = undefined;
+     
+     function init(){  
+     
+     var c1   = document.getElementById("containerMain");
+     list = new SingleLinkedList();
+     list.view.initStage(c1);
+     
+    }
+     function example(){
+         
+        init();
+        list.example();
+         
+     }
+  
+     function generate(){
+         
+        init();
+        list.example();
+     
+    }
+     function create(){
+     
+     
+     
+     var c1   = document.getElementById("containerMain");
+     list = new SingleLinkedList();
+     list.view.initStage(c1);
+    
+     
+     list.createList();
+    }
+  
+    function firstElement() {
+        list.addFirst();
+        
+    }
+    
+    function addElement (){
+        
+        console.log("Pusti me na miru");
+    }
+    
+    function removeFirst(){
+        
+        list.removeFirst();
+    }
+    
+    
+</script>
 </body>
 </html>
