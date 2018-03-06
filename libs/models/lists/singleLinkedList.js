@@ -42,7 +42,7 @@ function SingleLinkedList() {
     
     this.length = 0;
     this.empty  = false;
-    
+    this.speed  = 3;
 }
 
 SingleLinkedList.prototype.addFirst         = function( value ){
@@ -206,7 +206,7 @@ SingleLinkedList.prototype.removeElement         = function(){
     
     var instance = this;
     
-    if(instance.length = 0) { 
+    if(instance.length == 0) { 
         alert("This list is empty");
         return;
     }
