@@ -84,22 +84,21 @@ else {
     instance.head.next = help;
     
     instance.length++;
+    //this.view.drawExample();
     }
-    
-    console.log("Head is: "+instance.head.next.value);
-    
+    //this.view.drawExample();
 };
 SingleLinkedList.prototype.example       = function(){
     
     var array = [ 11,8,2,33,12 ];
-    
+    console.log("array length is: "+array.length);
     for (i = 0; i<array.length; i++ )
     {
-        
+        console.log("run nr: "+i);
         var temp = array[i];
-        
+        console.log("temp: "+temp);
         this.addFirst(temp);
-        console.log("I added: "+temp);
+        
     }
     
      this.view.drawExample();
@@ -151,9 +150,8 @@ SingleLinkedList.prototype.createList         = function(){
     this.empty  = false;
 };
 
-
 SingleLinkedList.prototype.addElement         = function(){
-    
+   
     var instance = this;
     
     if(instance.length == 0) { 
@@ -164,18 +162,38 @@ SingleLinkedList.prototype.addElement         = function(){
     
     var input = prompt("Please enter the position at which you would like to add an elemen, starting at 1: ");
     var value = prompt("Please enter the value of the element: ");
+    if( input == 1){ 
+        instance.addFirst(value);
+        this.view.drawExample(); 
+        return;
+    }
+    
     var node = instance.getElementByPosition(input);
     var prev = instance.getElementByPosition(input-1);
+    console.log("Length of the list is:"+this.length);
     
-    node.marked.nodeColor = "green";
-    instance.view.drawExample();
-    alert("Node will be added");
-    prev.next = new Node(value);
-    prev.next.next = node;
-    this.length ++;
-    node.marked.nodeColor = "white";
-    instance.view.drawExample();
-};    
+    function addValue(){
+        setTimeout(function(){
+            node.marked.nodeColor = "#009900";
+            instance.view.drawExample();
+            
+    
+                setTimeout(function(){
+            
+                    prev.next = new Node(value);
+                    prev.next.next = node;
+                    instance.length++;
+                    node.marked.nodeColor = "white";
+                    
+                    instance.view.drawExample();
+                    },1500);
+                },2000);
+            }
+    
+ addValue();
+ 
+}; 
+
 
 SingleLinkedList.prototype.removeFirst = function(){
     
@@ -212,8 +230,13 @@ SingleLinkedList.prototype.removeElement         = function(){
     }
     
     var input = prompt("Please enter the position of the element you would like to remove, starting at 1: ");
+    
+    
     var node = instance.getElementByPosition(input);
+    
+    if(node==null){return;}
     var prev = instance.getElementByPosition(input-1);
+    
     
     node.marked.nodeColor = "red";
     instance.view.drawExample();
@@ -228,34 +251,73 @@ SingleLinkedList.prototype.accessElement         = function(){
     
     var instance = this;
     
-    if(instance.length = 0) { 
+    if(instance.length == 0) { 
         alert("This list is empty");
         return;
     }
+    function animateAccess(i){
+            setTimeout(function(){
+                var node = instance.getElementByPosition(i);
+                node.marked.nodeColor = "green";  
+                instance.view.drawExample(); 
+                   
+                node.marked.nodeColor = "white";
+                if(i==input){
+                    
+                    setTimeout(function(){
+                    var node = instance.getElementByPosition(input);
+                    node.marked.nodeColor = "gold";   
+                    instance.view.drawExample();   
+                    
+    
+                    setTimeout(function(){
+                        
+                        node.marked.nodeColor = "white";
+                        alert("Value of the node on the position "+input+" is: "+node.value);
+                        instance.view.drawExample();
+    
+                  },2000);
+         },3000);  
+        
+                    
+                    
+                }
+              
+                
+            },i*1000);
+        }
+            
     
     var input = prompt("Please enter the position of the element you would like to access, starting at 1: ");
     console.log("Position entered is: "+input);
     //todo test for 0,non integer and multiple values
-    var node = instance.getElementByPosition(input);
-    console.log("Value of the node on the position entered is: "+node.value);
-    node.marked.nodeColor = "green";
-    instance.view.drawExample();
+   
     
-    alert("Value of the node on the position "+input+" is: "+node.value);
+    function accessAnimation(){
+     console.log("input is: "+input);
+    setTimeout(function(){
+        for(i=1;i<=input;i++){
+          
+             animateAccess(i);
+             
+        }
+        
+        
+        },2000);   
+        
+    }
     
-    node.marked.nodeColor = "white";
-    instance.view.drawExample();
-
     
+    accessAnimation();
     
 };
 SingleLinkedList.prototype.getElementByPosition      = function( position ){
    
     if( position > this.length ) {
-        alert("The position is greater than the length of this list,please choose a position less or greater than "+this.length);
-        return;
+        alert("The position is greater than the length of this list,please choose a position less than or equal to "+this.length);
+        return null;
     } 
-    //if(position == 0){ position = 1;}
+    if(position == 0){ position = 1;}
     var help = this.head.next;
     for(i=1; i<position;i++){
         help = help.next;
