@@ -19,9 +19,10 @@ function Node( value ) {
       
         searched  : false,
         found     : false,
-        arrowColor: false,
+        arrow     : false,
         nodeColor : "white",
-        
+        nullLabel : false,
+        blank     : false,
         pointer   : false,
         pointerAct: false,
         pointerPre: false
@@ -36,13 +37,17 @@ function SingleLinkedList() {
     this.task  = {				// View-Specific and Algorithm-Specific information
 		queue : [], 			// Can hold multiple values to be visualized 
 		status : '', 			// {Insert, Remove, Search}	   		    
-		element: '',	
+		operation: '',
+                //element: '',	
                 animate: false
 	};
-    
-    this.length = 0;
-    this.empty  = false;
-    this.speed  = 3;
+    this.input      = '';
+    this.member     = false;
+    this.lengthFlag = false;
+    this.lengthCounter;
+    this.length     = 0;
+    this.empty      = false;
+    this.speed      = 3;
 }
 
 SingleLinkedList.prototype.addFirst         = function( value ){
@@ -91,12 +96,12 @@ else {
 SingleLinkedList.prototype.example       = function(){
     
     var array = [ 11,8,2,33,12 ];
-    console.log("array length is: "+array.length);
+   
     for (i = 0; i<array.length; i++ )
     {
-        console.log("run nr: "+i);
+        
         var temp = array[i];
-        console.log("temp: "+temp);
+        
         this.addFirst(temp);
         
     }
@@ -108,7 +113,6 @@ SingleLinkedList.prototype.example       = function(){
 SingleLinkedList.prototype.getUserInput  = function(promptMessage){
     
     var tempValues = prompt(promptMessage);
-    console.log("Temporary values were accepted: "+tempValues);
     var inputValues = [];
     var tempVal;
         
@@ -170,7 +174,7 @@ SingleLinkedList.prototype.addElement         = function(){
     
     var node = instance.getElementByPosition(input);
     var prev = instance.getElementByPosition(input-1);
-    console.log("Length of the list is:"+this.length);
+   
     
     function addValue(){
         setTimeout(function(){
@@ -186,8 +190,8 @@ SingleLinkedList.prototype.addElement         = function(){
                     node.marked.nodeColor = "white";
                     
                     instance.view.drawExample();
-                    },1500);
-                },2000);
+                    },500);
+                },1000);
             }
     
  addValue();
@@ -198,53 +202,101 @@ SingleLinkedList.prototype.addElement         = function(){
 SingleLinkedList.prototype.removeFirst = function(){
     
     var instance   = this;
-    if( instance.head.next !== undefined && instance.head.next != null){
-    if( instance.head.next.next != undefined){
-        instance.head.next = instance.head.next.next;
-    var current = instance.head.next;
-    instance.length--;
-    console.log("First element: "+instance.head.next.value);
-    for(i=0; i<this.length; i++){
-       console.log(current.value);
-       current = current.next;
-    }
-    }
-    else {    
-        instance.head.next = null;
-        this.length = 0;
-        }
-     instance.view.drawExample();   
-    }
-else 
-    alert("The list is empty");
-    return;
-};
-
-SingleLinkedList.prototype.removeElement         = function(){
     
-    var instance = this;
-    
+    console.log("The List Length: "+instance.length);
+   
     if(instance.length == 0) { 
         alert("This list is empty");
         return;
     }
     
-    var input = prompt("Please enter the position of the element you would like to remove, starting at 1: ");
+    var prev = instance.head;
+    var node = prev.next;
     
+    if( node == null || node == undefined ){ alert("This list is empty!"); return;}
     
-    var node = instance.getElementByPosition(input);
+    if( node.next == null ){ node.marked.nullLabel =true; }
+    instance.removeElement(1,node,prev);
+    console.log("Finished Remove First")
+    return;
     
-    if(node==null){return;}
-    var prev = instance.getElementByPosition(input-1);
-    
-    
-    node.marked.nodeColor = "red";
-    instance.view.drawExample();
-    alert("Node will be removed");
-    prev.next = node.next;
-    this.length --;
-    instance.view.drawExample();
+};
 
+SingleLinkedList.prototype.removeElement         = function(input,node,prev){
+    
+    var instance   = this;
+    
+    
+   function animateRemove(){
+       
+       setTimeout(function(){
+           node.marked.nodeColor = "red";
+           console.log("Current node value: "+node.value);
+          
+           instance.view.drawExample();
+           
+           setTimeout(function(){
+             prev.marked.arrow = true;
+             
+             console.log("I marked the arrow and will draw "+node.value);
+             
+               instance.view.drawExample();
+             
+             setTimeout(function(){
+                 
+                 node.marked.blank = true;
+                 console.log("I blanked the node and will draw "+node.value);
+                 
+                 //console.log("Blanked node input is: "+node.value);
+                 instance.view.drawExample();
+                 
+                  setTimeout(function(){
+                 
+                    prev.next = node.next;
+                    instance.length --;
+                    console.log("New length: "+instance.length);
+                    prev.marked.arrow = false;
+                    node.marked.nodeColor = "white";
+                    instance.view.drawExample();
+                    return;
+                  },2500); 
+            },2000); 
+           },1500); 
+        },1000); 
+   } 
+    
+    console.log("Started Remove Element");
+    if(instance.length == 0) { 
+        alert("This list is empty");
+        return;
+    }
+    
+    var input = input;
+    var node  = node;
+    var prev  = prev;
+    
+    if( input == undefined ){
+    var input = instance.getUserInput("Please enter the position of the element you would like to remove, starting at 1: ");
+    
+    // TO DO test for positive integer,if not return plus error message
+    }
+    node = instance.getElementByPosition(input);
+    
+    if( node === null ){return;}
+    if( input == 1){ 
+        prev = instance.head;
+       
+   }
+    
+    else {
+        var prev = instance.getElementByPosition(input-1);
+    }
+    
+    
+    if( node.next == null ){ node.marked.nullLabel =true; }
+    animateRemove();
+    
+return;
 };
 
 SingleLinkedList.prototype.accessElement         = function(){
@@ -276,8 +328,8 @@ SingleLinkedList.prototype.accessElement         = function(){
                         alert("Value of the node on the position "+input+" is: "+node.value);
                         instance.view.drawExample();
     
-                  },2000);
-         },3000);  
+                  },1000);
+         },2000);  
         
                     
                     
@@ -289,12 +341,12 @@ SingleLinkedList.prototype.accessElement         = function(){
             
     
     var input = prompt("Please enter the position of the element you would like to access, starting at 1: ");
-    console.log("Position entered is: "+input);
+    
     //todo test for 0,non integer and multiple values
    
     
     function accessAnimation(){
-     console.log("input is: "+input);
+    
     setTimeout(function(){
         for(i=1;i<=input;i++){
           
@@ -319,33 +371,165 @@ SingleLinkedList.prototype.getElementByPosition      = function( position ){
     } 
     if(position == 0){ position = 1;}
     var help = this.head.next;
-    for(i=1; i<position;i++){
+    for(j=1; j<position;j++){
         help = help.next;
     }
     return help;
    
 };
 
-SingleLinkedList.prototype.removeList  = function(){};
+SingleLinkedList.prototype.removeList  = function(){
+    
+   var instance = this;
+   
+    function invokeRemove(){
+       setTimeout(function(){
+       instance.removeFirst();
+       console.log("This is the Remove First call number: "+p);
+       },1000);
+    }
+    
+    var lengthRun = instance.length;
+    
+    for(p=lengthRun;p>0;p--)
+    {
+     console.log("Removing First");
+     invokeRemove(p);
+
+     lengthRun--;
+ }
+ return;
+   
+    
+};
 SingleLinkedList.prototype.getLength   = function(){
     
-    alert("The length of this list is: "+this.length);
+    var instance = this;
+    
+    function animateLength(i){
+        
+        setTimeout(function(){
+            
+                var node = instance.getElementByPosition(i);
+                instance.lengthCounter = i;
+                node.marked.nodeColor = "green";  
+                instance.lengthFlag = true;
+                instance.view.drawExample(); 
+                console.log("I drew it when i: "+i);
+                node.marked.nodeColor = "white";
+            
+                 if( i==instance.length) {
+                    setTimeout(function(){
+                        
+                        node.marked.nodeColor = "white";
+                        instance.lengthFlag = false;
+                        instance.view.drawExample();
+                     
+                    ;},500);    
+                }    
+            ;},i*1000);
+        
+    }
+     
+ 
+    for(i=0; i<this.length+1;i++){
+       
+        animateLength(i);
+             
+    }
     
 };
 SingleLinkedList.prototype.isMember    = function(){
+
+var instance = this;
+
+function animateMember(i){
+            
+                
+                setTimeout(function(){
+                
+                var node = instance.getElementByPosition(i);
+                node.marked.nodeColor = "green";  
+                instance.view.drawExample(); 
+                
+                node.marked.nodeColor = "white";
+                
+                if(node.value==input){
+                    
+                    setTimeout(function(){
+                    node.marked.nodeColor = "gold";   
+                    instance.view.drawExample();   
+                    
     
+                    setTimeout(function(){
+                        
+                        node.marked.nodeColor = "white";
+                        instance.member = false;
+                        alert(input+" is a member!");
+                        instance.view.drawExample();
+                        return true;
+                        
+                     },5000);
+                      
+        
+                     },1000);}
+           
+                if( node.value!=input && i==instance.length) {
+                    
+                    setTimeout(function(){
+                    instance.view.drawExample();
+                    setTimeout(function(){
+                        
+                        alert(input+" is not a member!");
+                        instance.member = false;
+                        instance.view.drawExample();
+                        return false;
+                     },500);
+              
+                   },1000)
+          
+          
+                }  
+           
+                
+     },i*1000);
+    }
+
+
     var input   = prompt("Enter the value to test: ");
-    var current = this.head.next; 
-    for(i=0; i<this.length;i++){
-        if(input == current.value){ 
-            alert("It is a member");
-            return 
-        }
-        current = current.next;
+    instance.input = input;
+    
+   
+    instance.member = true;
+     
+    for(i=0; i<this.length+1;i++){
+       
+        var node = instance.getElementByPosition(i);
+        
+
+        animateMember(i);
+        
+        if( node.value == instance.input ){ 
+            
+                    return;}
+      
+    }
+     
+};
+SingleLinkedList.prototype.random      = function(){
+    
+    var randomLength = Math.floor(Math.random() * 5) + 3;
+    console.log("Random length: "+randomLength);
+    for (i = 0; i<randomLength; i++ )
+    {
+        
+        var temp = Math.floor(Math.random()*100)+1;
+        
+        this.addFirst(temp);
+        
     }
     
-    alert("It is not a member");
+     this.view.drawExample();
     
 };
-SingleLinkedList.prototype.random      = function(){};
 
