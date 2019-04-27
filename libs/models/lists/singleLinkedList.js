@@ -17,16 +17,17 @@ function Node( value ) {
     this.next  = null;
     this.marked = {
       
-        searched  : false,
-        found     : false,
-        arrow     : false,
-        nodeColor : "white",
-        nullLabel : false,
-        blank     : false,
-        pointer   : false,
-        pointerAct: false,
-        pointerPre: false
-    
+        searched  :   false,
+        found     :   false,
+        arrow     :   false,
+        nodeColor :   "white",
+        nullLabel :   false,
+        blank     :   false,
+        pointerArrow: false,
+        pointerAct:   false,
+        pointerPre:   false,
+        pointerNArrow:false,
+        pointerNew:   false
     };
 }
 
@@ -42,10 +43,20 @@ function SingleLinkedList() {
                 animate: false
 	};
     this.input      = '';
+    this.queue      = [];
+    this.pointer    = false,
+    
     this.member     = false;
+    this.access     = false;
     this.lengthFlag = false;
+    this.addNew     = false;
+    
+    this.arrowNull  = false;
+    this.addQueue   = false;
     this.lengthCounter;
     this.length     = 0;
+    
+    
     this.empty      = false;
     this.speed      = 3;
 }
@@ -55,6 +66,7 @@ SingleLinkedList.prototype.addFirst         = function( value ){
     var instance = this;
     var value    = value;
     
+   
     if( value === undefined ){  // If no parameters were passed 
         var input = instance.getUserInput("Add: \nPlease enter the element(s) to be added (separated by space),\nvalues > 99999999 are ignored.");
         // Return when array is empty
@@ -62,25 +74,80 @@ SingleLinkedList.prototype.addFirst         = function( value ){
                 prompt("No values were added");
                 return;
             }
-        
-            
-            for(i=0; i<input.length; i++) {
-               
-                var help = new Node ( input[i] );
-                help.next = instance.head.next;
-                instance.head.next = help;
-                
-                
-              
-                instance.length++;
-            
+     if( input === null || input === "" || input == false || input === " " || input == undefined ){
+            console.log("input is: "+input);
+            return;
+        }
+    
+          instance.queue = input.slice();
+          instance.addQueue = true;
+          
+          for(l=0; l<input.length; l++) {
+               (function(l, instance) {
+                setTimeout(function() {
                 instance.view.drawExample();
+                setTimeout(function() {
+                instance.pointer      = true;
+                instance.addNew       = true;
+                instance.input        = input[l];
+                instance.queue[l]      = null;
                 
-               
-   
+                if(input.length>1){ 
+                //fill task queue
+                }
+                instance.view.drawExample();
+                   
+                    setTimeout(function(){
+                        
+                        if(instance.head.next === null){
+                            instance.arrowNull = true;
+                            instance.view.drawExample();
+                        } 
+                        else {
+                        
+                        instance.head.next.marked.pointerArrow = true;
+                        instance.view.drawExample();
+                        instance.head.next.marked.pointerArrow = false;
+                    }
+                        setTimeout(function(){
+                   
+                          var help = new Node ( input[l] );
+                          help.next = instance.head.next;
+                          instance.head.next = help;
+                          instance.length++;
+                          instance.addNew = false;
+                          instance.head.next.marked.pointerArrow = true;
+                          console.log("first element value: "+instance.head.next.value);
+                          
+                          instance.view.drawExample();
+                          
+                          setTimeout(function(){
+                              
+                              instance.head.next.marked.pointerArrow = false;
+                              instance.addNew                        = false;
+                              instance.view.drawExample();
+                              
+                               setTimeout(function(){
+                              
+                                 instance.pointer = false;
+                                 console.log("queue length: "+instance.queue.length);
+                                 if( l == input.length-1 ){ instance.addQueue = false;}
+                                 instance.view.drawExample();
+                                 
+                                 return;
+                                },500*2); 
+                            },500*3); 
+                           },500*2); 
+                        },500*2); 
+                     },500*2); 
+                   
+             }, 3500*l*2+2500); 
+       
+             })(l, instance);
             }
-    }
-
+       
+       
+}         
 else {
     // When the value to be added is passed as an argument,draw function will be called from that function in order for everything to be drawn at the same time ( example() and random())
     
@@ -91,7 +158,7 @@ else {
     instance.length++;
     //this.view.drawExample();
     }
-    //this.view.drawExample();
+  
 };
 SingleLinkedList.prototype.example       = function(){
     
@@ -117,22 +184,27 @@ SingleLinkedList.prototype.getUserInput  = function(promptMessage){
     var tempVal;
         
     // Return [] on invalid input 
-    if(tempValues == null || tempValues == ""){ return []; }
-
+   // if(tempValues == null || tempValues == ""){ return []; }
+   //if a user presses OK or Cancel without an values, ignore
+    if( tempValues === null || tempValues === "" || tempValues === false || tempValues == 0 ){
+            
+            return;
+        }
     tempValues = tempValues.split(" ");
 		
     for (var i = 0; i < tempValues.length; i++) {
-	tempVal = parseInt(tempValues[i]);
+	tempVal = Number(tempValues[i]);
+        
        
-        if ( !isNaN(tempVal) && tempVal < 100000000 ){
+        if ( !isNaN(tempVal) && tempVal < 100000000 && Number.isInteger(tempVal) ){
            
             inputValues.push(tempVal);
             }
 	
         else { 
             
-            prompt("Invalid input,only numbers < 100000000 please/n Unsuitable values will be ignored");
-           
+            alert("Invalid input,only integer numbers < 100000000 please/n Unsuitable values will be ignored");
+            return;
         }
    }
    
@@ -164,36 +236,78 @@ SingleLinkedList.prototype.addElement         = function(){
         return;
     }
     
-    var input = prompt("Please enter the position at which you would like to add an elemen, starting at 1: ");
-    var value = prompt("Please enter the value of the element: ");
+    var input = instance.getUserInput("Please enter the position at which you would like to add an elemen, starting at 1: ");
+    var value = instance.getUserInput("Please enter the value of the element: ");
+    if( input === null || input === "" || input == false || input === " " || input == undefined ){
+            
+            alert("Invalid input,please try again");
+            return;
+        }
+    if( value === null || value === "" || value == false || value === " " || value == undefined ){
+           
+            alert("Invalid input,please try again");
+            return;
+        }
+    
     if( input == 1){ 
         instance.addFirst(value);
-        this.view.drawExample(); 
+         
         return;
     }
     
+  
     var node = instance.getElementByPosition(input);
     var prev = instance.getElementByPosition(input-1);
    
+        if( node.next === null ){ 
+            node.marked.nullLabel = true; 
+        }
+        prev.marked.pointerPre    = true;
+        prev.marked.pointerArrow  = true;
+        
+        instance.view.drawExample();
+        node.marked.pointerAct    = true;
+        node.marked.pointerArrow  = true;
     
     function addValue(){
         setTimeout(function(){
             node.marked.nodeColor = "#009900";
             instance.view.drawExample();
             
+            setTimeout(function(){
     
+                prev.marked.pointerNew = true;
+                instance.input         = value;
+                instance.view.drawExample();
+                
                 setTimeout(function(){
-            
-                    prev.next = new Node(value);
-                    prev.next.next = node;
-                    instance.length++;
-                    node.marked.nodeColor = "white";
                     
-                    instance.view.drawExample();
-                    },500);
-                },1000);
-            }
+                   prev.marked.pointerNArrow = true;
+                   instance.view.drawExample();
     
+                    setTimeout(function(){
+            
+                        prev.next = new Node(value);
+                        prev.next.next = node;
+                        instance.length++;
+                        
+                        node.marked.nodeColor = "white";
+                        
+                        prev.marked.pointerPre    = false;
+                        prev.marked.pointerArrow  = false;
+                        node.marked.pointerAct    = false;
+                        node.marked.pointerArrow  = false;
+                        node.marked.nullLabel     = false;
+                        prev.marked.pointerNew    = false;
+                        prev.marked.pointerNArrow = false;
+                        
+                        instance.view.drawExample();    
+                    },500);
+                  },1000);
+                },1000);
+             },1000);
+            }
+     
  addValue();
  
 }; 
@@ -203,7 +317,7 @@ SingleLinkedList.prototype.removeFirst = function(){
     
     var instance   = this;
     
-    console.log("The List Length: "+instance.length);
+   
    
     if(instance.length == 0) { 
         alert("This list is empty");
@@ -216,22 +330,97 @@ SingleLinkedList.prototype.removeFirst = function(){
     if( node == null || node == undefined ){ alert("This list is empty!"); return;}
     
     if( node.next == null ){ node.marked.nullLabel =true; }
-    instance.removeElement(1,node,prev);
-    console.log("Finished Remove First")
+    var one = 1;
+    instance.removeElement(1);
+    
     return;
     
 };
 
-SingleLinkedList.prototype.removeElement         = function(input,node,prev){
+SingleLinkedList.prototype.removeElement         = function(one){
     
     var instance   = this;
+    var input = one;
     
     
-   function animateRemove(){
-       
-       setTimeout(function(){
+   
+        if(instance.length == 0) { 
+        alert("This list is empty");
+        return;
+        }
+        
+        if( input === undefined ){ 
+            var input = instance.getUserInput("Please enter the position of the element you would like to remove, starting at 1: ");
+           } 
+          console.log("input is: "+input);
+         
+        if( input === null || input === "" || input == false || input === " " || input == undefined ){
+            
+            return;
+        }
+        
+        if(input.length >1){ 
+            var uinput = input[0]; 
+            input = uinput;
+        }
+        
+        if( input < 0){ 
+            
+            alert("Positive integers only,please!");
+            return;
+        }
+        
+        if( input == "0"){ 
+            
+           input = 1;
+        }
+    // TO DO test for positive integer,if not return plus error message
+    
+    
+    if(instance.length === 0) { 
+        alert("This list is empty");
+        return;
+    }
+    
+    
+    var prev;
+    var node = instance.getElementByPosition(input);
+    
+    if( node === null ){return;}
+    if( input == 1){ 
+        prev             = instance.head;
+        instance.pointer = true;
+        instance.view.drawExample();
+        node.marked.pointerArrow = true;
+   }
+    
+    else {
+        prev = instance.getElementByPosition(input-1);
+        if( node.next === null ){ 
+            node.marked.nullLabel = true; 
+        }
+        prev.marked.pointerPre    = true;
+        prev.marked.pointerArrow  = true;
+        
+        instance.view.drawExample();
+        node.marked.pointerAct    = true;
+        node.marked.pointerArrow  = true;
+        
+        
+    }
+    
+    
+   
+    
+    
+    setTimeout(function(){
+         
+        instance.view.drawExample();
+        
+            
+        setTimeout(function(){
            node.marked.nodeColor = "red";
-           console.log("Current node value: "+node.value);
+           
           
            instance.view.drawExample();
            
@@ -244,57 +433,35 @@ SingleLinkedList.prototype.removeElement         = function(input,node,prev){
              
              setTimeout(function(){
                  
-                 node.marked.blank = true;
-                 console.log("I blanked the node and will draw "+node.value);
+                 node.marked.blank        = true;
+                 node.marked.pointerArrow = false;
+                 instance.pointer         = false;
+                
                  
-                 //console.log("Blanked node input is: "+node.value);
                  instance.view.drawExample();
-                 
-                  setTimeout(function(){
+                
+                  
+                 setTimeout(function(){
                  
                     prev.next = node.next;
                     instance.length --;
-                    console.log("New length: "+instance.length);
+                   
                     prev.marked.arrow = false;
                     node.marked.nodeColor = "white";
-                    instance.view.drawExample();
+                    
+                    prev.marked.pointerArrow= false;
+                    prev.marked.pointerPre   = false;
+                    
+                     instance.view.drawExample();
                     return;
-                  },2500); 
-            },2000); 
-           },1500); 
-        },1000); 
-   } 
-    
-    console.log("Started Remove Element");
-    if(instance.length == 0) { 
-        alert("This list is empty");
-        return;
-    }
-    
-    var input = input;
-    var node  = node;
-    var prev  = prev;
-    
-    if( input == undefined ){
-    var input = instance.getUserInput("Please enter the position of the element you would like to remove, starting at 1: ");
-    
-    // TO DO test for positive integer,if not return plus error message
-    }
-    node = instance.getElementByPosition(input);
-    
-    if( node === null ){return;}
-    if( input == 1){ 
-        prev = instance.head;
-       
-   }
-    
-    else {
-        var prev = instance.getElementByPosition(input-1);
-    }
+                  },500*2); 
+            },500*2); 
+           },500*2); 
+        },500*2); 
+       },500*2); 
+   
     
     
-    if( node.next == null ){ node.marked.nullLabel =true; }
-    animateRemove();
     
 return;
 };
@@ -310,14 +477,20 @@ SingleLinkedList.prototype.accessElement         = function(){
     function animateAccess(i){
             setTimeout(function(){
                 var node = instance.getElementByPosition(i);
-                node.marked.nodeColor = "green";  
+                node.marked.nodeColor    = "green";  
+                node.marked.position     = i;
+                node.marked.pointerArrow = true;
+                instance.pointer         = true;
                 instance.view.drawExample(); 
                    
                 node.marked.nodeColor = "white";
+                node.marked.pointerArrow = false;
+                
                 if(i==input){
                     
                     setTimeout(function(){
                     var node = instance.getElementByPosition(input);
+                    node.marked.pointerArrow = true;
                     node.marked.nodeColor = "gold";   
                     instance.view.drawExample();   
                     
@@ -325,10 +498,13 @@ SingleLinkedList.prototype.accessElement         = function(){
                     setTimeout(function(){
                         
                         node.marked.nodeColor = "white";
+                        node.marked.pointerArrow = false;
+                        instance.access          = false;
+                        instance.pointer         = false;
                         alert("Value of the node on the position "+input+" is: "+node.value);
                         instance.view.drawExample();
     
-                  },1000);
+                  },2000);
          },2000);  
         
                     
@@ -336,27 +512,27 @@ SingleLinkedList.prototype.accessElement         = function(){
                 }
               
                 
-            },i*1000);
+            },i*3000);
         }
             
     
-    var input = prompt("Please enter the position of the element you would like to access, starting at 1: ");
-    
+    var input = instance.getUserInput("Please enter the position of the element you would like to access, starting at 1: ");
+    if( input === null || input === "" || input == false || input === " " || input == undefined ){
+            
+            return;
+        }           
     //todo test for 0,non integer and multiple values
-   
+   if ( input > instance.length){ alert( "You cannot access element at the position "+input+" because the list is not long enough.Please choose a position between 1 and "+instance.length); return; }
+   instance.access = true;
+   instance.input  = input;
+   function accessAnimation(){
     
-    function accessAnimation(){
-    
-    setTimeout(function(){
         for(i=1;i<=input;i++){
           
              animateAccess(i);
              
         }
-        
-        
-        },2000);   
-        
+           
     }
     
     
@@ -382,24 +558,76 @@ SingleLinkedList.prototype.removeList  = function(){
     
    var instance = this;
    
-    function invokeRemove(){
-       setTimeout(function(){
-       instance.removeFirst();
-       console.log("This is the Remove First call number: "+p);
-       },1000);
+   if(instance.length == 0) { 
+        alert("This list is empty");
+        return;
     }
-    
-    var lengthRun = instance.length;
-    
-    for(p=lengthRun;p>0;p--)
-    {
-     console.log("Removing First");
-     invokeRemove(p);
-
-     lengthRun--;
- }
- return;
    
+   var lengthRun = instance.length;
+
+    for(var i=0; i < lengthRun; i++) {
+        (function(i, instance) {
+            setTimeout(function() {
+                instance.pointer = true;
+                instance.view.drawExample();
+                    //instance.removeFirst();
+                    if(instance.length == 0) {
+                        alert("This list is empty");
+                        return;
+                    }
+
+                    var prev = instance.head;
+                    
+                    var node = prev.next;
+                    
+            
+                    setTimeout(function(){
+                        node.marked.pointerArrow = true;
+                        node.marked.nodeColor = "red";
+                        console.log("Current node value: "+node.value);
+                       
+                        instance.view.drawExample();
+                        
+                        setTimeout(function(){
+                          prev.marked.arrow = true;
+                          console.log(instance);
+                          console.log("I marked the arrow and will draw "+node.value);
+                          
+                           instance.view.drawExample();
+                          
+                          setTimeout(function(){
+                              
+                              node.marked.blank = true;
+                              console.log("I blanked the node and will draw "+node.value);
+                              
+                              instance.view.drawExample();
+                              
+                               setTimeout(function(){
+                              
+                                 prev.next = node.next;
+                                 instance.length --;
+                                 console.log("New length: "+instance.length);
+                                 prev.marked.arrow     = false;
+                                 node.marked.nodeColor = "white";
+                              
+                                 instance.view.drawExample();
+                                 if( i == lengthRun-1 ){
+                                     
+                                     instance.pointer = false;
+                                     instance.view.drawExample();
+                                     
+                                 }
+                                 return;
+                                },500*2); 
+                            },500*2); 
+                           },500*2); 
+                        },500*2); 
+            
+                   
+            }, 3500*i*2+2500); 
+        })(i, instance);
+    }
+
     
 };
 SingleLinkedList.prototype.getLength   = function(){
@@ -412,17 +640,22 @@ SingleLinkedList.prototype.getLength   = function(){
             
                 var node = instance.getElementByPosition(i);
                 instance.lengthCounter = i;
-                node.marked.nodeColor = "green";  
-                instance.lengthFlag = true;
+                node.marked.nodeColor = "green"; 
+                console.log("i: "+i);
+                if(i>0){ 
+                    node.marked.pointerArrow = true; 
+                }
                 instance.view.drawExample(); 
                 console.log("I drew it when i: "+i);
                 node.marked.nodeColor = "white";
-            
+                node.marked.pointerArrow = false; 
                  if( i==instance.length) {
                     setTimeout(function(){
                         
                         node.marked.nodeColor = "white";
                         instance.lengthFlag = false;
+                        instance.pointer    = false;
+                       
                         instance.view.drawExample();
                      
                     ;},500);    
@@ -430,8 +663,12 @@ SingleLinkedList.prototype.getLength   = function(){
             ;},i*1000);
         
     }
-     
- 
+    if(instance.length === 0) { 
+        alert("This list is empty, its length is 0");
+        return;
+    }
+    instance.lengthFlag = true;
+    instance.pointer = true;
     for(i=0; i<this.length+1;i++){
        
         animateLength(i);
@@ -442,6 +679,10 @@ SingleLinkedList.prototype.getLength   = function(){
 SingleLinkedList.prototype.isMember    = function(){
 
 var instance = this;
+if(instance.length === 0) { 
+        alert("This list is empty");
+        return;
+    }
 
 function animateMember(i){
             
@@ -449,15 +690,20 @@ function animateMember(i){
                 setTimeout(function(){
                 
                 var node = instance.getElementByPosition(i);
-                node.marked.nodeColor = "green";  
+                node.marked.nodeColor =    "green";  
+                node.marked.pointerArrow = true;
+                
                 instance.view.drawExample(); 
                 
+                
                 node.marked.nodeColor = "white";
+                node.marked.pointerArrow = false;
                 
                 if(node.value==input){
                     
                     setTimeout(function(){
-                    node.marked.nodeColor = "gold";   
+                    node.marked.nodeColor = "gold";  
+                    node.marked.pointerArrow = true;
                     instance.view.drawExample();   
                     
     
@@ -465,6 +711,8 @@ function animateMember(i){
                         
                         node.marked.nodeColor = "white";
                         instance.member = false;
+                        instance.pointer = false;
+                        node.marked.pointerArrow = false;
                         alert(input+" is a member!");
                         instance.view.drawExample();
                         return true;
@@ -477,11 +725,13 @@ function animateMember(i){
                 if( node.value!=input && i==instance.length) {
                     
                     setTimeout(function(){
+                    node.marked.pointerArrow = true;
                     instance.view.drawExample();
                     setTimeout(function(){
-                        
-                        alert(input+" is not a member!");
                         instance.member = false;
+                        instance.pointer = false;
+                        node.marked.pointerArrow = false;
+                        alert(input+" is not a member!"); 
                         instance.view.drawExample();
                         return false;
                      },500);
@@ -496,12 +746,17 @@ function animateMember(i){
     }
 
 
-    var input   = prompt("Enter the value to test: ");
+    var input   = instance.getUserInput("Enter the value to test: ");
+    if( input === null || input === "" || input == false || input === " " || input == undefined ){
+          
+            return;
+        }
     instance.input = input;
     
    
-    instance.member = true;
-     
+    instance.member =  true;
+    instance.pointer = true; 
+    console.log( "Is pointer going to be drawn:"+ instance.pointer);
     for(i=0; i<this.length+1;i++){
        
         var node = instance.getElementByPosition(i);
