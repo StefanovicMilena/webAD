@@ -39,11 +39,15 @@ function SingleLinkedList() {
 		queue : [], 			// Can hold multiple values to be visualized 
 		status : '', 			// {Insert, Remove, Search}	   		    
 		operation: '',
-                //element: '',	
+               
                 animate: false
 	};
+     
+    this.working    = false; 
+        
     this.input      = '';
     this.queue      = [];
+    this.db         = [];
     this.pointer    = false,
     
     this.member     = false;
@@ -53,11 +57,9 @@ function SingleLinkedList() {
     
     this.arrowNull  = false;
     this.addQueue   = false;
-    this.lengthCounter;
     this.length     = 0;
     
-    
-    this.empty      = false;
+    this.actStateId = -1;
     this.speed      = 3;
 }
 
@@ -65,17 +67,18 @@ SingleLinkedList.prototype.addFirst         = function( value ){
    
     var instance = this;
     var value    = value;
+    instance.working = true;
     
-   
     if( value === undefined ){  // If no parameters were passed 
         var input = instance.getUserInput("Add: \nPlease enter the element(s) to be added (separated by space),\nvalues > 99999999 are ignored.");
         // Return when array is empty
             if( input.length == 0 ){
                 prompt("No values were added");
+                instance.working = false;
                 return;
             }
      if( input === null || input === "" || input == false || input === " " || input == undefined ){
-            console.log("input is: "+input);
+            instance.working = false;
             return;
         }
     
@@ -85,12 +88,13 @@ SingleLinkedList.prototype.addFirst         = function( value ){
           for(l=0; l<input.length; l++) {
                (function(l, instance) {
                 setTimeout(function() {
-                instance.view.drawExample();
-                setTimeout(function() {
-                instance.pointer      = true;
-                instance.addNew       = true;
-                instance.input        = input[l];
-                instance.queue[l]      = null;
+                    console.log("Instance working: "+instance.working);
+                    instance.view.drawExample();
+                        setTimeout(function() {
+                            instance.pointer      = true;
+                            instance.addNew       = true;
+                            instance.input        = input[l];
+                            instance.queue[l]      = null;
                 
                 if(input.length>1){ 
                 //fill task queue
@@ -117,7 +121,6 @@ SingleLinkedList.prototype.addFirst         = function( value ){
                           instance.length++;
                           instance.addNew = false;
                           instance.head.next.marked.pointerArrow = true;
-                          console.log("first element value: "+instance.head.next.value);
                           
                           instance.view.drawExample();
                           
@@ -130,10 +133,12 @@ SingleLinkedList.prototype.addFirst         = function( value ){
                                setTimeout(function(){
                               
                                  instance.pointer = false;
-                                 console.log("queue length: "+instance.queue.length);
-                                 if( l == input.length-1 ){ instance.addQueue = false;}
-                                 instance.view.drawExample();
                                  
+                                 if( l == input.length-1 ){ 
+                                       instance.working    = false;
+                                       instance.addQueue   = false;
+                                 }
+                                 instance.view.drawExample();
                                  return;
                                 },500*2); 
                             },500*3); 
@@ -158,7 +163,8 @@ else {
     instance.length++;
     //this.view.drawExample();
     }
-  
+    instance.working = false;  
+    console.log("Instance working: "+instance.working);
 };
 SingleLinkedList.prototype.example       = function(){
     
@@ -177,6 +183,47 @@ SingleLinkedList.prototype.example       = function(){
      
 };
 
+SingleLinkedList.prototype.saveInDB       = function(){
+    
+    
+   
+     
+};
+
+SingleLinkedList.prototype.copy       = function(copyInstance){ // TO DO: copy the instance list into the new instance through iteration
+        
+    var newInstance = new SingleLinkedList();
+    newInstance.db        = [];
+    newInstance.queue     = [];
+    newInstance.working   = copyInstance.working; 
+        
+    newInstance.input     = copyInstance.input;      
+    newInstance.pointer   = copyInstance.pointer;
+  
+    
+    newInstance.member     = copyInstance.member;
+    newInstance.access     = copyInstance.access;
+    newInstance.lengthFlag = copyInstance.lengthFlag;
+    newInstance.addNew     = copyInstance.addNew;
+    
+    newInstance.arrowNull  = copyInstance.arrowNull;
+    newInstance.addQueue   = copyInstance.addQueue;
+    newInstance.length     = copyInstance.length;
+    
+    newInstance.actStateId = copyInstance.actStateID;
+    newInstance.speed      = copyInstance.speed;
+    
+    newInstance.head       = new Node();
+    var copyInstanceTemp   = copyInstance.head;
+    var newInstanceTemp    = newInstance.head;
+    /*while(copyInstanceTemp.next != null){
+       newInstanceTemp.next = newNode();
+       newInstanceTemp.value = copyInstanceTemp.next.value;
+       copyInstanceTemp = copyInstanceTemp.next;
+       newInstanceTemp  = newInstanceTemp.next;
+   }*/
+   return newInstance;  
+};
 SingleLinkedList.prototype.getUserInput  = function(promptMessage){
     
     var tempValues = prompt(promptMessage);
@@ -213,7 +260,7 @@ SingleLinkedList.prototype.getUserInput  = function(promptMessage){
         return[];
    
     }
- 
+    
     return inputValues;
 
 };
@@ -221,15 +268,14 @@ SingleLinkedList.prototype.getUserInput  = function(promptMessage){
 SingleLinkedList.prototype.createList         = function(){
    
     var instance = this;
-    this.empty   = true;
     instance.view.drawExample();    
-    this.empty  = false;
+    
 };
 
 SingleLinkedList.prototype.addElement         = function(){
    
     var instance = this;
-    
+    this.working    = true; 
     if(instance.length == 0) { 
         alert("This list is empty, can only add element as first");
         instance.addFirst();
@@ -238,20 +284,24 @@ SingleLinkedList.prototype.addElement         = function(){
     
     var input = instance.getUserInput("Please enter the position at which you would like to add an elemen, starting at 1: ");
     var value = instance.getUserInput("Please enter the value of the element: ");
-    if( input === null || input === "" || input == false || input === " " || input == undefined ){
+    if( input === null || input === "" || input == false || input === " " || input == undefined || input.length > 1 ){
             
-            alert("Invalid input,please try again");
+            alert("Invalid position  input,please try again");
+            instance.working = false;          
+            console.log("Instance working: "+instance.working);
             return;
         }
     if( value === null || value === "" || value == false || value === " " || value == undefined ){
            
-            alert("Invalid input,please try again");
+            alert("Invalid value input,please try again");
+            instance.working    = false;
+            console.log("Instance working: "+instance.working);
             return;
         }
     
     if( input == 1){ 
         instance.addFirst(value);
-         
+                  
         return;
     }
     
@@ -273,7 +323,7 @@ SingleLinkedList.prototype.addElement         = function(){
         setTimeout(function(){
             node.marked.nodeColor = "#009900";
             instance.view.drawExample();
-            
+            console.log("Instance working: "+instance.working);
             setTimeout(function(){
     
                 prev.marked.pointerNew = true;
@@ -301,7 +351,9 @@ SingleLinkedList.prototype.addElement         = function(){
                         prev.marked.pointerNew    = false;
                         prev.marked.pointerNArrow = false;
                         
-                        instance.view.drawExample();    
+                        instance.view.drawExample(); 
+                        instance.working    = false;
+                        console.log("Instance working: "+instance.working);
                     },500);
                   },1000);
                 },1000);
@@ -309,14 +361,14 @@ SingleLinkedList.prototype.addElement         = function(){
             }
      
  addValue();
- 
+
 }; 
 
 
 SingleLinkedList.prototype.removeFirst = function(){
     
-    var instance   = this;
-    
+    var instance     = this;
+    instance.working    = true;
    
    
     if(instance.length == 0) { 
@@ -332,7 +384,7 @@ SingleLinkedList.prototype.removeFirst = function(){
     if( node.next == null ){ node.marked.nullLabel =true; }
     var one = 1;
     instance.removeElement(1);
-    
+    console.log("Instance working: "+instance.working);
     return;
     
 };
@@ -340,9 +392,10 @@ SingleLinkedList.prototype.removeFirst = function(){
 SingleLinkedList.prototype.removeElement         = function(one){
     
     var instance   = this;
+    instance.working    = true; 
     var input = one;
     
-    
+     console.log("Instance working: "+instance.working); 
    
         if(instance.length == 0) { 
         alert("This list is empty");
@@ -355,7 +408,7 @@ SingleLinkedList.prototype.removeElement         = function(one){
           console.log("input is: "+input);
          
         if( input === null || input === "" || input == false || input === " " || input == undefined ){
-            
+            instance.working = false;          
             return;
         }
         
@@ -367,6 +420,7 @@ SingleLinkedList.prototype.removeElement         = function(one){
         if( input < 0){ 
             
             alert("Positive integers only,please!");
+            instance.working = false;          
             return;
         }
         
@@ -379,6 +433,7 @@ SingleLinkedList.prototype.removeElement         = function(one){
     
     if(instance.length === 0) { 
         alert("This list is empty");
+        instance.working = false;          
         return;
     }
     
@@ -416,8 +471,8 @@ SingleLinkedList.prototype.removeElement         = function(one){
     setTimeout(function(){
          
         instance.view.drawExample();
+        console.log("Instance working: "+instance.working);   
         
-            
         setTimeout(function(){
            node.marked.nodeColor = "red";
            
@@ -453,6 +508,8 @@ SingleLinkedList.prototype.removeElement         = function(one){
                     prev.marked.pointerPre   = false;
                     
                      instance.view.drawExample();
+                     instance.working    = false;   
+                     console.log("Instance working: "+instance.working);
                     return;
                   },500*2); 
             },500*2); 
@@ -461,21 +518,21 @@ SingleLinkedList.prototype.removeElement         = function(one){
        },500*2); 
    
     
-    
-    
+
 return;
 };
 
 SingleLinkedList.prototype.accessElement         = function(){
     
-    var instance = this;
-    
+    var instance        = this;
+    instance.working    = true; 
     if(instance.length == 0) { 
         alert("This list is empty");
         return;
     }
     function animateAccess(i){
             setTimeout(function(){
+                
                 var node = instance.getElementByPosition(i);
                 node.marked.nodeColor    = "green";  
                 node.marked.position     = i;
@@ -503,7 +560,9 @@ SingleLinkedList.prototype.accessElement         = function(){
                         instance.pointer         = false;
                         alert("Value of the node on the position "+input+" is: "+node.value);
                         instance.view.drawExample();
-    
+                        
+                        instance.working    = false;
+                        console.log("Instance working: "+instance.working);
                   },2000);
          },2000);  
         
@@ -556,7 +615,8 @@ SingleLinkedList.prototype.getElementByPosition      = function( position ){
 
 SingleLinkedList.prototype.removeList  = function(){
     
-   var instance = this;
+   var instance        = this;
+   instance.working    = true; 
    
    if(instance.length == 0) { 
         alert("This list is empty");
@@ -582,6 +642,7 @@ SingleLinkedList.prototype.removeList  = function(){
                     
             
                     setTimeout(function(){
+                        console.log("Instance working: "+instance.working);
                         node.marked.pointerArrow = true;
                         node.marked.nodeColor = "red";
                         console.log("Current node value: "+node.value);
@@ -614,9 +675,10 @@ SingleLinkedList.prototype.removeList  = function(){
                                  if( i == lengthRun-1 ){
                                      
                                      instance.pointer = false;
+                                     instance.working    = false;
                                      instance.view.drawExample();
                                      
-                                 }
+                                 } 
                                  return;
                                 },500*2); 
                             },500*2); 
@@ -628,18 +690,18 @@ SingleLinkedList.prototype.removeList  = function(){
         })(i, instance);
     }
 
-    
+ console.log("Instance working: "+instance.working);
 };
 SingleLinkedList.prototype.getLength   = function(){
     
-    var instance = this;
-    
+    var instance        = this;
+    instance.working    = true; 
     function animateLength(i){
         
         setTimeout(function(){
-            
+                console.log("Instance working: "+instance.working);
                 var node = instance.getElementByPosition(i);
-                instance.lengthCounter = i;
+                instance.input = i;
                 node.marked.nodeColor = "green"; 
                 console.log("i: "+i);
                 if(i>0){ 
@@ -657,7 +719,8 @@ SingleLinkedList.prototype.getLength   = function(){
                         instance.pointer    = false;
                        
                         instance.view.drawExample();
-                     
+                        instance.working    = false;
+                        console.log("Instance working: "+instance.working);
                     ;},500);    
                 }    
             ;},i*1000);
@@ -674,11 +737,12 @@ SingleLinkedList.prototype.getLength   = function(){
         animateLength(i);
              
     }
-    
 };
 SingleLinkedList.prototype.isMember    = function(){
 
-var instance = this;
+var instance        = this;
+instance.working    = true; 
+
 if(instance.length === 0) { 
         alert("This list is empty");
         return;
@@ -688,7 +752,7 @@ function animateMember(i){
             
                 
                 setTimeout(function(){
-                
+                console.log("Instance working: "+instance.working);
                 var node = instance.getElementByPosition(i);
                 node.marked.nodeColor =    "green";  
                 node.marked.pointerArrow = true;
@@ -715,6 +779,8 @@ function animateMember(i){
                         node.marked.pointerArrow = false;
                         alert(input+" is a member!");
                         instance.view.drawExample();
+                        instance.working = false; 
+                        console.log("Instance working: "+instance.working);
                         return true;
                         
                      },5000);
@@ -733,6 +799,8 @@ function animateMember(i){
                         node.marked.pointerArrow = false;
                         alert(input+" is not a member!"); 
                         instance.view.drawExample();
+                        instance.working = false; 
+                        console.log("Instance working: "+instance.working);
                         return false;
                      },500);
               
@@ -748,7 +816,7 @@ function animateMember(i){
 
     var input   = instance.getUserInput("Enter the value to test: ");
     if( input === null || input === "" || input == false || input === " " || input == undefined ){
-          
+            instance.working = false;
             return;
         }
     instance.input = input;
@@ -765,11 +833,12 @@ function animateMember(i){
         animateMember(i);
         
         if( node.value == instance.input ){ 
-            
+                    instance.working = false;          
                     return;}
       
     }
-     
+   instance.working    = false;   
+   console.log("Instance working: "+instance.working);
 };
 SingleLinkedList.prototype.random      = function(){
     
@@ -785,6 +854,10 @@ SingleLinkedList.prototype.random      = function(){
     }
     
      this.view.drawExample();
-    
+    /* var newState = this.copy(this);
+     for(i=0;i<this.length;i++){
+         
+         console.log("First node value: "+newState.)
+     }*/
 };
 
