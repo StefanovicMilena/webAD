@@ -15,7 +15,7 @@
 function Node( value ) {
     this.value = value;
     this.next  = null;
-    this.marked = {
+    this.marked = {                 // View-specific info and flags that enable the animation
         position  :   ""     ,
         arrowColor:   "black",
         searched  :   false,
@@ -37,26 +37,26 @@ function SingleLinkedList() {
     this.head        = new Node();
     this.view        = new SingleLinkedListView( this );
   
-    this.working      = false; 
+    this.working      = false;          // used to indicate that the instance is in the middle of an animation 
         
-    this.input        = '';
-    this.queue        = [];
-    this.db           = [];
-    this.pointer      = false,
+    this.input        = '';             // Used for the view to access values of the variables to be printed                      
+    this.queue        = [];             // Used to hold multiple values
+    this.db           = [];             // tape recorder array for storing states              
+    this.pointer      = false,          // pointer flag, indicates that an additional helper pointer needs to be drawn
     
-    this.firstLabel   = false;
-    this.member       = false;
-    this.access       = false;
-    this.lengthFlag   = false;
-    this.addNew       = false;
+    this.firstLabel   = false;          // flag used to indicate value of the first node in the corresponding animation
+    this.member       = false;          // member flag, indicating that the member label needs to be drawn
+    this.access       = false;          // access flag, indicating that the access label needs to be drawn
+    this.lengthFlag   = false;          // length flag, indicating that the length label needs to be drawn
+    this.addNew       = false;          // member flag, indicating that the member label needs to be drawn
     
-    this.arrowNull    = false;
-    this.addQueue     = false;
-    this.length       = 0;
-    this.drawToScreen = true;
-    this.lastDrawnID  = undefined;
-    this.actStateID   = -1;
-    this.speed        = 3;
+    this.arrowNull    = false;          // 
+    this.addQueue     = false;          // queue flag, indicating queue Label needs to be drawn
+    this.length       = 0;              
+    this.drawToScreen = true;           // when set to false, the draw function will not be updated, and the animation will run in the background
+    this.lastDrawnID  = undefined;      // when an animation is paused, lastDrawnID remembers which state it was in
+    this.actStateID   = -1;             // active state ID that gets incremented as the states change
+    this.speed        = 3;  
 }
 
 SingleLinkedList.prototype.addFirst         = function( value ){
@@ -64,7 +64,7 @@ SingleLinkedList.prototype.addFirst         = function( value ){
     var instance     = this;
     var value        = value;
     instance.working = true;
-    console.log("List working: "+instance.working);
+   
     var timer = function (){ return instance.drawToScreen ? 400* instance.speed : 0; }
     
     if( value === undefined ){  // If no parameters were passed 
@@ -91,21 +91,34 @@ SingleLinkedList.prototype.addFirst         = function( value ){
               instance.disableDrawOnPause();
               instance.draw();
               
+            
           }
-          console.log("Am I working: "+instance.working);
+        
           
           instance.saveInDB();
           instance.disableDrawOnPause();
           instance.draw();
-          for(l=0; l<input.length; l++) {
-               (function(l, instance) {
-                
-                        setTimeout(function() {
+          
+          function addNextValue() {
+		if ( instance.queue.length > 0 ) {
+			// Add next value
+			addValue( instance.queue.pop() );
+		} 
+		else { 
+			// Clean up
+ 			instance.setActStateIDlastDrawn();
+			instance.working = false;
+			instance.draw(); 
+		}
+	}
+    function addValue( value ) {
+          
+        setTimeout(function() {
                             instance.working      = true;
                             instance.pointer      = true;
                             instance.addNew       = true;
-                            instance.input        = input[l];
-                            instance.queue[l]     = null;
+                            instance.input        = value;
+                            
                 
                             instance.saveInDB();
                             instance.disableDrawOnPause();
@@ -118,6 +131,7 @@ SingleLinkedList.prototype.addFirst         = function( value ){
                             instance.saveInDB();
                             instance.disableDrawOnPause();
                             instance.draw();
+                            instance.arrowNull = false;
                         } 
                         else {
                         
@@ -126,10 +140,11 @@ SingleLinkedList.prototype.addFirst         = function( value ){
                         instance.disableDrawOnPause();
                         instance.draw();
                         instance.head.next.marked.pointerArrow = false;
+                       
                     }
                         setTimeout(function(){
                    
-                          var help = new Node ( input[l] );
+                          var help = new Node ( value );
                           help.next = instance.head.next;
                           instance.head.next = help;
                           instance.length++;
@@ -151,32 +166,30 @@ SingleLinkedList.prototype.addFirst         = function( value ){
                               
                                  
                                  
-                                 if( l == input.length-1 ){ 
+                                 if( instance.queue.length == 0 ){ 
                                        instance.pointer    = false;
-                                       instance.working    = false;
                                        instance.addQueue   = false;
                                        instance.saveInDB();
                                        instance.disableDrawOnPause();
                                        instance.draw();
-                                       instance.setActStateIDlastDrawn();
-                                       instance.working    = false;
-                                       console.log("I changed");
-                                       return;
+                                       
+                                       
+                                       
                                  }
                                  instance.saveInDB();
                                  instance.disableDrawOnPause();
                                  instance.draw();
-                                 
+                                 addNextValue();
                                 
-                            },timer()*2); 
-                           },timer()*2); 
-                        },timer()*2); 
-                     },timer()*2); 
+                            },timer()); 
+                           },timer()); 
+                        },timer()); 
+                     },timer()); 
                    
-             }, timer()*6*l*2+timer()*4); 
-       
-             })(l, instance);
-            }
+             }, timer()); 
+        
+    }
+  addNextValue(); 
        
        
 }         
@@ -193,7 +206,7 @@ else {
     instance.working = false;  
     
 };
-SingleLinkedList.prototype.example       = function(){
+SingleLinkedList.prototype.example       = function(){      // default list shown on the screen
     
     var array = [ 11,8,2,33,12 ];
    
@@ -210,7 +223,7 @@ SingleLinkedList.prototype.example       = function(){
      
 };
 
-SingleLinkedList.prototype.draw       = function(){
+SingleLinkedList.prototype.draw       = function(){           
     
     if( this.drawToScreen){
        this.view.drawExample();
@@ -313,7 +326,6 @@ SingleLinkedList.prototype.continueTask       = function( speed ){
 			// In case user paused 
 			if(instance.speed <= 0)
 			{
-				console.log("I tried to stop it");
 				instance.draw();
                                 instance.working = false;
 				return;
@@ -336,21 +348,18 @@ SingleLinkedList.prototype.continueTask       = function( speed ){
 	setNextState();
     
 };
-
-SingleLinkedList.prototype.disableDrawOnPause       = function(){
+// Disable drawing
+SingleLinkedList.prototype.disableDrawOnPause       = function(){       
     
     var instance        = this;
     if(instance.speed === 0 && instance.drawToScreen === true){ 
-		instance.drawToScreen = false;				
-		///instance.lastDrawnID = instance.actStateID; 
-                
-               
+		instance.drawToScreen = false           
 	}
     
     
      
 };
-
+// Set the active state to the last drawn one and enable drawing
 SingleLinkedList.prototype.setActStateIDlastDrawn       = function(){
     
     var instance        = this;
@@ -367,7 +376,7 @@ SingleLinkedList.prototype.setActStateIDlastDrawn       = function(){
     instance.drawToScreen         = true; 
     
 };
-
+// Saves the states in the tape recorder array, according to their IDs which are incremented 
 SingleLinkedList.prototype.saveInDB                     = function(){
     
     var instance   = this;
@@ -381,7 +390,7 @@ SingleLinkedList.prototype.saveInDB                     = function(){
    
      
 };
-
+// replace the current state with a copy from the DB
 SingleLinkedList.prototype.replaceThis       = function(listInstance){
     
     var instance        = this;
@@ -400,7 +409,7 @@ SingleLinkedList.prototype.replaceThis       = function(listInstance){
     instance.lengthFlag = stateCopy.lengthFlag;
     instance.addNew     = stateCopy.addNew;
     
-    instance.arrowNull  = stateCopy.arrowNulll;
+    instance.arrowNull  = stateCopy.arrowNull;
     instance.addQueue   = stateCopy.addQueue;
     instance.length     = stateCopy.length;
     
@@ -421,8 +430,8 @@ SingleLinkedList.prototype.replaceThis       = function(listInstance){
    }
      
 };
-
-SingleLinkedList.prototype.copy       = function(copyInstance){ // TO DO: copy the instance list into the new instance through iteration
+// Copy the current state and return the copy,to be stored in the DB
+SingleLinkedList.prototype.copy       = function(copyInstance){ 
      var instance = this;   
     var newInstance = new SingleLinkedList();
     
@@ -532,7 +541,7 @@ SingleLinkedList.prototype.addElement         = function(){
    
     var instance    = this;
     instance.working    = true; 
-    console.log("Instance working: "+instance.working);
+    
     var timer = function (){ return instance.drawToScreen ? 400* instance.speed : 0; }
     
     if(instance.length == 0) { 
@@ -568,7 +577,7 @@ SingleLinkedList.prototype.addElement         = function(){
     var node = instance.getElementByPosition(input);
     var prev = instance.getElementByPosition(input-1);
    
-        if( node.next === null ){ 
+        if( node.next === null ){           
             node.marked.nullLabel = true; 
         }
         prev.marked.pointerPre    = true;
@@ -654,7 +663,7 @@ SingleLinkedList.prototype.removeFirst = function(){
     
     if( node.next == null ){ node.marked.nullLabel =true; }
     var one = 1;
-    instance.removeElement(1);
+    instance.removeElement(1);  
     return;
     
 };
@@ -716,7 +725,7 @@ SingleLinkedList.prototype.removeElement         = function(one){
         instance.working = false;
         return;
     }
-    if( input == 1){ 
+    if( input == 1){    // if the first element is being removed, set the prev to head 
         prev                     = instance.head;
         instance.pointer         = true;
         instance.saveInDB();
@@ -725,7 +734,7 @@ SingleLinkedList.prototype.removeElement         = function(one){
         node.marked.pointerArrow = true;
    }
     
-    else {
+    else {           // else, find the prev and set pointer and arrow flags for prev and node
         prev = instance.getElementByPosition(input-1);
         if( node.next === null ){ 
             node.marked.nullLabel = true; 
@@ -850,14 +859,14 @@ SingleLinkedList.prototype.accessFirst         = function(){
                     setTimeout(function(){ 
                         
                         if( instance.drawToScreen ){
-                        alert("The value of the first node in the list is: "+instance.head.next.value);
+                            alert("The value of the first node in the list is: "+instance.head.next.value);
                         }
                         instance.firstLabel                 = false;
                         instance.head.next.marked.nodeColor = "white";
-                        instance.working                    = false;
                         instance.saveInDB();
                         instance.disableDrawOnPause();
                         instance.draw();
+                        
                         instance.setActStateIDlastDrawn();
                         instance.working    = false;
                         instance.draw();
@@ -888,7 +897,7 @@ SingleLinkedList.prototype.accessElement         = function(){
                 var node = instance.getElementByPosition(i);
                 node.marked.nodeColor    = "green";  
                 node.marked.position     = i;
-                //instance.input           = i;
+              
                 node.marked.pointerArrow = true;
                 instance.pointer         = true;
                 instance.saveInDB();
@@ -898,7 +907,7 @@ SingleLinkedList.prototype.accessElement         = function(){
                 node.marked.nodeColor    = "white";
                 node.marked.pointerArrow = false;
                 
-                if(i==input){
+                if( i==input ){
                     
                     setTimeout(function(){
                     var node                 = instance.getElementByPosition(input);
@@ -940,13 +949,13 @@ SingleLinkedList.prototype.accessElement         = function(){
             
     
     var input = instance.getUserInput("Please enter the position of the element you would like to access, starting at 1: ");
-    if( input === null || input === "" || input == false || input === " " || input == undefined ){
-            
+    if( input === null || input === "" || input == false || input === " " || input == undefined || input.length>1 ){
+            alert("Ony single valid integer values, please");
             instance.working = false;
             return;
             
         }           
-    //todo test for 0,non integer and multiple values
+    
    if ( input > instance.length){ alert( "You cannot access element at the position "+input+" because the list is not long enough.Please choose a position between 1 and "+instance.length); instance.working = false; return; }
    instance.access = true;
    instance.input  = input;
@@ -980,7 +989,7 @@ SingleLinkedList.prototype.getElementByPosition      = function( position ){
 };
 
 SingleLinkedList.prototype.removeList  = function(){
-    
+   
    var instance        = this;
    instance.working    = true; 
    var timer = function (){ return instance.drawToScreen ? 400* instance.speed : 0; }
@@ -991,17 +1000,29 @@ SingleLinkedList.prototype.removeList  = function(){
         return;
     }
    
-   var lengthRun       = instance.length;
+   instance.draw();
+   instance.saveInDB(true); 
 
-    for(var i=0; i < lengthRun; i++) {
-        (function(i, instance) {
-            setTimeout(function() {
+    function removeNextValue() {
+		if ( instance.head.next !== null ) {
+			// Remove next value
+			removeValue();
+		} 
+		else { 
+			// Clean up
+ 			instance.setActStateIDlastDrawn();
+			instance.working = false;
+			instance.draw(); 
+		}
+	}
+    function removeValue() {
+                    setTimeout(function() {
                
                 instance.pointer = true;
                 instance.saveInDB();
                 instance.disableDrawOnPause();
                 instance.draw();
-                    //instance.removeFirst();
+                    
                     if(instance.length == 0) {
                         alert("This list is empty");
                         instance.working = false;
@@ -1048,29 +1069,27 @@ SingleLinkedList.prototype.removeList  = function(){
                                  instance.saveInDB();
                                  instance.disableDrawOnPause();
                                  instance.draw();
-                                 if( i == lengthRun-1 ){
+                                 if( instance.length == 0 ){      // if the last node is removed, pointer flag is set to false 
                                      
                                      instance.pointer  = false;
                                      
                                      instance.saveInDB();
                                      instance.disableDrawOnPause();
                                      instance.draw();
-                                     instance.setActStateIDlastDrawn();
-                                     instance.working    = false;
-                                     instance.draw();
+                                     
+                                    
+                                    
                                  } 
                                  
-                                 return;
+                                  removeNextValue();
                                 },timer()); 
-                            },timer()); 
-                           },timer()); 
-                        },timer()); 
-            
-                   
-            }, timer()*7*i+5*timer()); 
-        })(i, instance);
+                             },timer()); 
+                         },timer()); 
+                  },timer());                   
+            }, timer());
+        
     }
-
+  removeNextValue(); 
 };
 SingleLinkedList.prototype.getLength   = function(){
     
@@ -1157,7 +1176,7 @@ function animateMember(i){
                 node.marked.nodeColor    = "white";
                 node.marked.pointerArrow = false;
                 
-                if(node.value==input){
+                if(node.value==input){   // if value is found
                     
                     setTimeout(function(){
                     node.marked.nodeColor    = "gold";  
@@ -1173,7 +1192,7 @@ function animateMember(i){
                         instance.pointer         = false;
                         node.marked.pointerArrow = false;
                         
-                        if( instance.drawToScreen ){
+                        if( instance.drawToScreen ){    
                             alert(input+" is a member!");
                         }
                         instance.saveInDB();
@@ -1191,7 +1210,7 @@ function animateMember(i){
         
                      },timer());}
            
-                if( node.value!=input && i==instance.length) {
+                if( node.value!=input && i==instance.length) {      // if the last node is reached and value not found
                     
                  setTimeout(function(){
                     node.marked.pointerArrow = true;
@@ -1228,7 +1247,8 @@ function animateMember(i){
 
 
     var input   = instance.getUserInput("Enter the value to test: ");
-    if( input === null || input === "" || input == false || input === " " || input == undefined ){
+    if( input === null || input === "" || input == false || input === " " || input == undefined || input.length>1 ){
+            alert("Only positive integer values,please,one at a time")
             instance.working = false;
             return;
         }
@@ -1245,7 +1265,7 @@ function animateMember(i){
         
         animateMember(i);
         
-        if( node.value == instance.input ){ 
+        if( node.value == instance.input ){         // if value is found, do not animate further
                     instance.working = false;          
                     return;
                 }
