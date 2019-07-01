@@ -44,11 +44,13 @@
 <article>
 	<div id="menu" class="open">
 		<a href="javascript:_class('menu', 'open')">Single Linked List</a>
-		<input type="button" value="Generate Random" id="generateRandom" onclick="example();return false;">
+		<input type="button" value="Generate Random" id="generateRandom" onclick="generate
+                    ();return false;">
 		<input type="button" value="List()"          id="createList"     onclick="create();return false;">
                 <input type="button" value="~List()"         id="removeList"     onclick="removeList();return false;">
-                <input type="button" value="First Element"   id="addFirst"       onclick="firstElement();return false;">
+                <input type="button" value="Add"             id="addFirst"       onclick="firstElement();return false;">
                 <input type="button" value="Add Element"     id="addEl"          onclick="addElement();return false;">
+                <input type="button" value="First Element"   id="accessFr"       onclick="accessFirst();return false;">
 	        <input type="button" value="Access Element"  id="accessEl"       onclick="accessElement();return false;">
                 <input type="button" value="Remove First"    id="removeFirst"    onclick="removeFirst();return false;">
                 <input type="button" value="Remove Element"  id="removeEl"       onclick="removeElement();return false;">
@@ -56,7 +58,7 @@
                 <input type="button" value="Length"          id="length"         onclick="getLength();return false;">
                
 	</div>
-	<div id="containerMain"></div>
+	<div id="containerMain" width = 100% ></div>
 </article>
 
 
@@ -64,7 +66,7 @@
 	<div class="rul">
 		<a href="#" class="l2" id="first" onclick="first();return false;"></a>
 		<a href="#" class="l1" id="prev" onclick="pre();return false;"></a>
-		<a href="#" id="p"></a>
+                <a href="#" id="p" onclick="play();return false;"></a>
 		<a href="#" class="r1" id="next" onclick="next();return false;"></a>
 		<a href="#" class="r2" id="last" onclick="last();return false;"></a>
 		<a href="#" class="z2" onclick="zoomOut();return false;"></a>
@@ -87,10 +89,11 @@
 </div>
 <div id="config" class="popup hide"><div class="closer" onclick="javascript:_class('config', 'hide')"></div><a href="javascript:_class('config', 'hide')" class="close">X</a>
 	<div class="pole"><h2>Config</h2>
-		Dynamic: <input type="checkbox" name="dynamic" id="dynamic" onchange="dynamic();">
-		<br>
-		<br>
-		Color: <input type="color" name="col" id="col" onchange="changeCol();return false;">
+	Animation speed:
+  	<input type="number" name="speed" style="width:40px" id="speed" min="0" max="8" step="1" value=3 onchange="speed();return false;" >
+  	<p>
+  		Note: Larger numbers slow down and zero pauses the animation. Speed cannot be changed during animations. 
+  	</p>
 	</div>
 </div>
 <div id="about" class="popup hide"><div class="closer" onclick="javascript:_class('about', 'hide')"></div><a href="javascript:_class('about', 'hide')" class="close">X</a>
@@ -158,7 +161,7 @@
 </div>
     <script>
     var list = undefined;
-     
+    
      function init(){  
      
      var c1   = document.getElementById("containerMain");
@@ -174,58 +177,230 @@
      }
   
      function generate(){
-         
-        init();
-        list.example();
-     
-    }
+        if(!list.working){
+            clearTimes();
+            init();
+            list.random();
+        
+         }
+    } 
+       
      function create(){
      
-     
-     
-     var c1   = document.getElementById("containerMain");
-     list = new SingleLinkedList();
-     list.view.initStage(c1);
-    
-     
-     list.createList();
-    }
-  
-    function firstElement() {
-        list.addFirst();
+      if(!list.working){
+         clearTimes();
+         var c1   = document.getElementById("containerMain");
+         list = new SingleLinkedList();
+         list.view.initStage(c1);
+         list.createList();
         
+         }
+        
+    } 
+ 
+    function firstElement() {
+        if(!list.working){
+          if(list.actStateID == list.db.length-1 || list.actStateID == -1){
+            clearTimes();
+            list.addFirst();
+          } 
+          else{ 
+                alert("Instance can only be changed from the last recorded state.Please click through to the last state and try again!");
+            }
+        }    
     }
     
     function addElement (){
-        
-        list.addElement();
+        if(!list.working){
+          if(list.actStateID == list.db.length-1 || list.actStateID == -1){
+            clearTimes();
+            list.addElement();
+          }
+          else {
+                alert("Instance can only be changed from the last recorded state.Please click through to the last state and try again!");
+            } 
+          
+        }
     }
-    
     function removeFirst(){
-        
-        list.removeFirst();
-    }
-    
+        if(!list.working){
+          if(list.actStateID == list.db.length-1 || list.actStateID == -1){
+             clearTimes();
+             list.removeFirst();
+          }
+          else {
+               alert("Instance can only be changed from the last recorded state.Please click through to the last state and try again!");
+           } 
+         }
+     }
     function accessElement() {
-       
-        list.accessElement();
-        
+         if(!list.working){
+          if(list.actStateID == list.db.length-1 || list.actStateID == -1){
+             clearTimes();
+             list.accessElement();
+          }
+          else {
+               alert("Instance can only be changed from the last recorded state.Please click through to the last state and try again!");
+           } 
+        }
+    }
+    function accessFirst() {
+         if(!list.working){
+           if(list.actStateID == list.db.length-1 || list.actStateID == -1){
+             clearTimes();
+             list.accessFirst();
+        }
+        else {
+               alert("Instance can only be changed from the last recorded state.Please click through to the last state and try again!");
+           }
+        }
     }
     function removeElement(){
-        
-        list.removeElement();
+        if(!list.working){
+          if(list.actStateID == list.db.length-1 || list.actStateID == -1){ 
+            clearTimes();
+            list.removeElement();
+        }
+        else {
+               alert("Instance can only be changed from the last recorded state.Please click through to the last state and try again!");
+           }
+        }
     }
-    
     function isMember(){
-        
-        list.isMember();
+        if(!list.working){
+          if(list.actStateID == list.db.length-1 || list.actStateID == -1){ 
+            clearTimes();
+            list.isMember();
+        }
+        else {
+               alert("Instance can only be changed from the last recorded state.Please click through to the last state and try again!");
+           }
+         }
+     }
+    function getLength(){
+        if(!list.working){
+         if(list.actStateID == list.db.length-1 || list.actStateID == -1){ 
+             clearTimes();
+             list.getLength();
+         }
+         else {
+               alert("Instance can only be changed from the last recorded state.Please click through to the last state and try again!");
+           }
+       }
     }
-    
-      function getLength(){
-        
-        list.getLength();
+    function removeList(){
+        if(!list.working){
+          if(list.actStateID == list.db.length-1 || list.actStateID == -1){ 
+            clearTimes();
+            list.removeList();
+         }
+         else {
+               alert("Instance can only be changed from the last recorded state.Please click through to the last state and try again!");
+           }
+       }
     }
+    function clearTimes(){
+		
+		var pids = window.setTimeout(function() {}, 0);
+
+		while (pids--) {
+    		window.clearTimeout(pids); 
+		}
+	list.view.drawExample();	
+	}
     
+    function pre(){
+		if(!list.working){
+                        
+			clearTimes();
+			list.prev();
+                        
+                        
+		}
+	}
+    function next(){
+		if(!list.working){
+                    if(list.actStateID<=list.db.length-1){
+			clearTimes();
+			list.next();
+                        
+                    }
+            }
+	}
+    function first(){
+		if(!list.working){
+			clearTimes();
+			list.first();
+                        
+		}
+	}
+	
+    function last(){
+		if(!list.working){
+			clearTimes();
+			list.last();
+                        
+		}
+	}
+    function play(){
+                
+		// Pause when active and speed not equal to zero!
+		if(list.working && list.speed !== 0){
+                    
+                    list.speed       = 0;
+                // Set the last drawn ID on the spot, for accuracy
+                    list.lastDrawnID = list.actStateID;
+	        //Update spinner too
+		    var sp       = $("#speed");
+		    sp.val(0);
+		    return;
+		}
+
+		// Play when inactive 
+		if( !list.working ){
+                    
+			list.working=true; // will be automatically unset	
+			clearTimes();	
+                        
+			var sp = $("#speed");
+			var speed = 3;
+			
+			if(parseInt(sp.val()) > 0) 
+				speed = parseInt(sp.val()); // If user set the speed in config before pressing play
+			else
+				sp.val(speed); // Update spinner with an alternative speed.
+	
+			list.continueTask(speed);
+			
+			return;
+		}
+              
+		
+	}
+
+    function speed(){
+
+		if(list!==undefined && !list.working){
+			
+			var sp = $("#speed");
+			var tmp = parseInt(sp.val());
+			
+			if(  tmp >= 0 || 8 <= tmp){ 
+				list.speed=tmp;
+				return;
+			} 
+			
+		}
+	}
+
+    
+    function zoomIn(){
+     	list.view.zoomIn(); 
+	}
+	
+    function zoomOut(){
+     	list.view.zoomOut(); 
+	}
 </script>
 </body>
 </html>
